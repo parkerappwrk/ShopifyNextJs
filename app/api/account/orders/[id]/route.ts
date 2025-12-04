@@ -3,12 +3,14 @@ import { getCustomerOrder } from "@/lib/shopify";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const accessToken = request.headers.get("x-access-token");
+    // Await params in Next.js 15
+    const { id } = await params;
     // Decode the order ID and remove any query parameters
-    const orderId = decodeURIComponent(params.id).split("?")[0];
+    const orderId = decodeURIComponent(id).split("?")[0];
 
     if (!accessToken) {
       return NextResponse.json(

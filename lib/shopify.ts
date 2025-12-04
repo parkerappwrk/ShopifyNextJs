@@ -112,6 +112,30 @@ async function shopifyFetch<T>(query: string, variables?: Record<string, unknown
   }
 }
 
+// Shop query to get store information
+const SHOP_QUERY = `
+  query getShop {
+    shop {
+      name
+      description
+    }
+  }
+`;
+
+export interface ShopInfo {
+  name: string;
+  description: string | null;
+}
+
+// Get shop information
+export async function getShopInfo(): Promise<ShopInfo> {
+  const data = await shopifyFetch<{
+    shop: ShopInfo;
+  }>(SHOP_QUERY);
+
+  return data.shop;
+}
+
 // GraphQL query to fetch all products with all variants
 const PRODUCTS_QUERY = `
   query getProducts($first: Int!, $variantsFirst: Int!) {

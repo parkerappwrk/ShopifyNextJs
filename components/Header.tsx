@@ -5,13 +5,34 @@ import Image from "next/image";
 import { useCart } from "@/contexts/CartContext";
 import { useEffect, useState } from "react";
 
+interface ShopInfo {
+  name: string;
+  logo: string | null;
+}
+
 export default function Header() {
   const { getTotalItems } = useCart();
   const [cartCount, setCartCount] = useState(0);
   const [user, setUser] = useState<{ name?: string; email?: string } | null>(null);
+  const [shopInfo, setShopInfo] = useState<ShopInfo | null>(null);
 
   useEffect(() => {
     setCartCount(getTotalItems());
+    
+    // Fetch shop information
+    const loadShopInfo = async () => {
+      try {
+        const response = await fetch("/api/shop");
+        if (response.ok) {
+          const data = await response.json();
+          setShopInfo(data);
+        }
+      } catch (error) {
+        console.error("Error fetching shop info:", error);
+      }
+    };
+    
+    loadShopInfo();
     
     // Check for user in localStorage and validate token
     const loadUser = async () => {
@@ -108,14 +129,20 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/80 backdrop-blur-sm dark:border-zinc-800 dark:bg-black/80">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2">
-          <Image
-            className="dark:invert"
-            src="/next.svg"
-            alt="Logo"
-            width={100}
-            height={20}
-            priority
-          />
+          {shopInfo?.logo ? (
+            <Image
+              src={shopInfo.logo}
+              alt={shopInfo.name || "Store Logo"}
+              width={100}
+              height={40}
+              priority
+              className="h-10 w-auto object-contain"
+            />
+          ) : (
+            <span className="text-lg font-semibold text-zinc-950 dark:text-zinc-50">
+              {shopInfo?.name || "Store"}
+            </span>
+          )}
         </Link>
         
         <nav className="hidden md:flex items-center gap-6">
